@@ -34,27 +34,25 @@ In this project, the goal is to safely navigate around a virtual highway with ot
 1. Main car's localization Data (No Noise)<br/>
 ["x"] The car's x position in map coordinates<br/>
 ["y"] The car's y position in map coordinates<br/>
-["s"] The car's s position in frenet coordinates
-["d"] The car's d position in frenet coordinates
-["yaw"] The car's yaw angle in the map
-["speed"] The car's speed in MPH
-Previous path data given to the Planner
-//Note: Return the previous list but with processed points removed, can be a nice tool to show how far along the path has processed since last time.
-["previous_path_x"] The previous list of x points previously given to the simulator
-["previous_path_y"] The previous list of y points previously given to the simulator
-Previous path's end s and d values
-["end_path_s"] The previous list's last point's frenet s value
-["end_path_d"] The previous list's last point's frenet d value
-Sensor Fusion Data, a list of all other car's attributes on the same side of the road. (No Noise)
-["sensor_fusion"] A 2d vector of cars and then that car's [car's unique ID, car's x position in map coordinates, car's y position in map coordinates, car's x velocity in m/s, car's y velocity in m/s, car's s position in frenet coordinates, car's d position in frenet coordinates.]
-Details
-The car uses a perfect controller and will visit every (x,y) point it recieves in the list every .02 seconds. The units for the (x,y) points are in meters and the spacing of the points determines the speed of the car. The vector going from a point to the next point in the list dictates the angle of the car. Acceleration both in the tangential and normal directions is measured along with the jerk, the rate of change of total Acceleration. The (x,y) point paths that the planner recieves should not have a total acceleration that goes over 10 m/s^2, also the jerk should not go over 50 m/s^3. (NOTE: As this is BETA, these requirements might change. Also currently jerk is over a .02 second interval, it would probably be better to average total acceleration over 1 second and measure jerk from that.
-There will be some latency between the simulator running and the path planner returning a path, with optimized code usually its not very long maybe just 1-3 time steps. During this delay the simulator will continue using points that it was last given, because of this its a good idea to store the last points you have used so you can have a smooth transition. previous_path_x, and previous_path_y can be helpful for this transition since they show the last points given to the simulator controller with the processed points already removed. You would either return a path that extends this previous path or make sure to create a new path that has a smooth transition with this last path.
+["s"] The car's s position in frenet coordinates<br/>
+["d"] The car's d position in frenet coordinates<br/>
+["yaw"] The car's yaw angle in the map<br/>
+["speed"] The car's speed in MPH<br/>
+["previous_path_x"] The previous list of x points previously given to the simulator<br/>
+["previous_path_y"] The previous list of y points previously given to the simulator<br/>
+["end_path_s"] The previous list's last point's frenet s value<br/>
+["end_path_d"] The previous list's last point's frenet d value<br/>
+2. Sensor Fusion Data, a list of all other car's attributes on the same side of the road. (No Noise)<br/>
+["sensor_fusion"] A 2d vector of cars and then that car's (car's unique ID, car's x position in map coordinates, car's y position in map coordinates, car's x velocity in m/s, car's y velocity in m/s, car's s position in frenet coordinates, car's d position in frenet coordinates.)
+
+## Details 
+The car uses a perfect controller and will visit every (x,y) point it receives in the list every .02 seconds. The units for the (x,y) points are in meters and the spacing of the points determines the speed of the car. The vector going from a point to the next point in the list dictates the angle of the car. Acceleration both in the tangential and normal directions is measured along with the jerk, the rate of change of total Acceleration. The (x,y) point paths that the planner recieves should not have a total acceleration that goes over 10 m/s^2, also the jerk should not go over 50 m/s^3. There will be some latency between the simulator running and the path planner returning a path, with optimized code usually its not very long maybe just 1-3 time steps. During this delay the simulator will continue using points that it was last given, because of this its a good idea to store the last points we have used so we can have a smooth transition. previous_path_x, and previous_path_y can be helpful for this transition since they show the last points given to the simulator controller with the processed points already removed. we would either return a path that extends this previous path or make sure to create a new path that has a smooth transition with this last path.
 
 
-## Project Implementation
-1) The vehicle model 
-- I used kinematic model. In this project, I ignored the tire forces, gravity, vehicle mass to simplify the model. Even though it reduces the accuracy of the model, it approximated well the actual vehicle dynamics at moderate speeds in simulator.
+## My Project Implementation
+1) Simulation Result 
+- I was able to drive one lap (about 4.32miles) without incident. At the below picture, the top right screen of the simulator shows the current/best miles driven without incident. Incidents include exceeding acceleration/jerk/speed, collision, and driving outside of the lanes.
+![Test image](https://github.com/KHKANG36/Path_Planning-Project/blob/master/Result1.png)
 
 2) State vector and actuator
 - I used 4 state vector and 2 actuators, which are x position, y postion, the angle between x-axis and vehicle's heading direction, vehicle speed, steering actuatror and throttle(brake+accel) actuator for each. This 4 state vectors and 2 actuators well approximate the vehicle's behavior in Kinematic model. Steering and throttle actuators can cover almost 90% of the vehicle's movement. (In reality, there will be other actuators such as tranmission(Gear)). I updated the 4 state with the fomulas as follows; (1) x(t+1) = x(t) + v(t) x cos(psi(t)) x dt (2) y(t+1) = y(t) + v(t) x sin(psi(t)) x dt (3) psi(t+1) = psi(t) + (v(t)/Lf) x delta x dt (4) v(t+1) = v(t) + a(t) x dt. Lf means the distance between the front of the vehicle and its center of gravity, and it influences the degree of vehicle's turning angle. Delta stands for the steering angle.   
