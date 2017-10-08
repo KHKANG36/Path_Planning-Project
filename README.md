@@ -68,4 +68,4 @@ The car uses a perfect controller and will visit every (x,y) point it receives i
 ![Test image](https://github.com/KHKANG36/Path_Planning-Project/blob/master/Result2.png)
 
 ## Discussion/Issues 
-If the driving environment is getting more complex, I would have chance to implement all the algorithms learned in classroom (behavior planning, complex cost functions, finite state machine, trajectory generation and so on..). However, it will also worth to implement more elaborate/robust model for this project with the aid of those concepts/algorithms!   
+If the driving environment is getting more complex, I would have chance to implement all the algorithms learned in classroom (behavior planning, complex cost functions, finite state machine, trajectory generation and so on..). However, it will also worth to implement more elaborate/robust model for this project with the aid of those concepts/algorithms!!!   
