@@ -33,7 +33,8 @@ In this project your goal is to safely navigate around a virtual highway with ot
 ## Data from/to 
 
 Here is the data provided from the Simulator to the C++ Program
-Main car's localization Data (No Noise)  ["x"] The car's x position in map coordinates
+Main car's localization Data (No Noise)<br/>
+["x"] The car's x position in map coordinates
 ["y"] The car's y position in map coordinates
 ["s"] The car's s position in frenet coordinates
 ["d"] The car's d position in frenet coordinates
