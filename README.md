@@ -51,7 +51,7 @@ The car uses a perfect controller and will visit every (x,y) point it receives i
 
 ## My Project Implementation
 1) Simulation Result 
-- I was able to drive one lap (about 4.32miles) without incident. At the below picture, the top right screen of the simulator shows the current/best miles driven without incident. Incidents include exceeding acceleration/jerk/speed, collision, and driving outside of the lanes.
+- I was able to drive one lap (about 4.32miles) without incident. At the below picture, the top right screen of the simulator shows the current/best miles driven without incident. Incidents include exceeding acceleration/jerk/speed, collision, and driving outside of the lanes.<br/>
 ![Test image](https://github.com/KHKANG36/Path_Planning-Project/blob/master/Result1.png)
 
 2) State vector and actuator
