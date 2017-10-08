@@ -217,7 +217,10 @@ int main() {
   // Initial velocity (MPH)
   double ref_vel = 0.0;
 
-  h.onMessage([&ref_vel, &map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy,&mylane](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
+  // Initialize the number of traffic obstrusion 
+  int obst = 0;  
+
+  h.onMessage([&ref_vel, &map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy,&mylane, &obst](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -284,12 +287,22 @@ int main() {
 				if ((check_car_lane == mylane) && (check_car_s > car_s) && (check_car_s - car_s) < 20) {
 					too_close = true;
 				}
-				// Can't change the lane if the gap between front/backward vehicle and my vehicle is not sufficient
-			    // We need more space between front vehicle than backward one, considering my vehicle speed	
-				if ((check_car_lane != mylane) && (check_car_s > car_s) && (check_car_s - car_s) < 23) {
-					lanemark[check_car_lane] = false;
-				} else if ((check_car_lane != mylane) && (check_car_s < car_s) && (car_s - check_car_s) < 7) {
-					lanemark[check_car_lane] = false;
+				// if the vehicle is obstructed by traffic, we help vehicle out by relaxing lane change condition
+				//  - Can't change the lane if the gap between front/backward vehicle and my vehicle is not sufficient
+			    //  - We need more space between front vehicle than backward one, considering my vehicle speed	
+				if (obst <= 260) {
+					if ((check_car_lane != mylane) && (check_car_s > car_s) && (check_car_s - car_s) < 25) {
+						lanemark[check_car_lane] = false;
+					} else if ((check_car_lane != mylane) && (check_car_s < car_s) && (car_s - check_car_s) < 10) {
+						lanemark[check_car_lane] = false;
+					}
+				}
+				else {
+					if ((check_car_lane != mylane) && (check_car_s > car_s) && (check_car_s - car_s) < 15) {
+						lanemark[check_car_lane] = false;
+					} else if ((check_car_lane != mylane) && (check_car_s < car_s) && (car_s - check_car_s) < 7) {
+						lanemark[check_car_lane] = false;
+					}
 				}
 				// Calculate the cost of the left turn and right turn when my car is lane number 1 
 				// Let's change to the lane which has realtively small "near-front" traffic!
@@ -303,30 +316,40 @@ int main() {
 
 			if(too_close)
 			{
-				ref_vel -= .240;
+				ref_vel -= .230;
 				//Lane change algorithm based on my location and lane status  
 				if ((mylane == 0) && (lanemark[1] == true)){
 					mylane = 1;
+					obst = 0;
 				} else if ((mylane == 2) && (lanemark[1] == true)){
 					mylane = 1;
+					obst = 0;
 				} else if ((mylane == 1) && (lanemark[0] == true) && (lanemark[2] == true)){
 					// When we can change the lane toward both lane 0 and 2,
 					// Compare the traffic cost of two sides of the lane, and change to the lane which has small front traffic
 					if (traffic_l > traffic_r) {
 						mylane = 2;
+						obst = 0;
 					} else {
 						mylane = 0;
+						obst = 0;
 					}
 				} else if ((mylane == 1) && (lanemark[0] == true) && (lanemark[2] == false)){
 					mylane = 0;
+					obst = 0;
 				} else if ((mylane == 1) && (lanemark[0] == false) && (lanemark[2] == true)){
 					mylane = 2;
+					obst = 0;
+				} else {
+					// If could not change the lane, increase the obstruction score
+					obst += 1;
 				}
+
 			}
 
 			else if(ref_vel < 49.5)
 			{
-				ref_vel += .280;
+				ref_vel += .290;
 			}
 
 			// Create a list of widely spaced (x,y) waypoints to use spline.h
@@ -368,10 +391,10 @@ int main() {
 				ptsy.push_back(ref_y);
 			}
 
-			//In Frenet add evenly 25m spaced points ahead of the starting reference
-			vector<double> next_wp0 = getXY(car_s+25,(2+4*mylane),map_waypoints_s, map_waypoints_x, map_waypoints_y);
-			vector<double> next_wp1 = getXY(car_s+50,(2+4*mylane),map_waypoints_s, map_waypoints_x, map_waypoints_y);
-			vector<double> next_wp2 = getXY(car_s+75,(2+4*mylane),map_waypoints_s, map_waypoints_x, map_waypoints_y);
+			//In Frenet add evenly 30m spaced points ahead of the starting reference
+			vector<double> next_wp0 = getXY(car_s+30,(2+4*mylane),map_waypoints_s, map_waypoints_x, map_waypoints_y);
+			vector<double> next_wp1 = getXY(car_s+60,(2+4*mylane),map_waypoints_s, map_waypoints_x, map_waypoints_y);
+			vector<double> next_wp2 = getXY(car_s+90,(2+4*mylane),map_waypoints_s, map_waypoints_x, map_waypoints_y);
 
 			ptsx.push_back(next_wp0[0]);
 			ptsx.push_back(next_wp1[0]);
